@@ -37,13 +37,7 @@ duplicate entries to the end of the array. The unique entries will be moved to t
 same order that they first appear, while the duplicate entries will be moved to the end of the array, but the
 order does not matter. The value returned will be the number of unique entries.*/
 //150550 --> 150
-void shift_to_back (int array[], int b, std::size_t capacity){ // [0,1,b,2,3] --> [0,1,2,3,b]
-    int temp_b_val= array[b];
-    for(int i= b; i<capacity-1; i++){
-        array[b]= array[b+1];
-    }
-    array[capacity-1] = temp_b_val;
-}
+
 
 bool in_array(int array[], int value, std::size_t capacity){
     for(int i =0; i< capacity; i++){
@@ -52,48 +46,54 @@ bool in_array(int array[], int value, std::size_t capacity){
         }
     }
     return false;
-
+}
+void shift_back(int array[], std::size_t capacity, int index){
+    int temp = array[index];
+    for(int i=index; i<capacity-1; i++){
+        array[i] = array[i+1];
+    }
+    array[capacity-1] = temp;
 
 }
-
-std::size_t shift_duplicates( int array[], std::size_t capacity ){
-    int* unique_array = new int[capacity]{0};
-    int u{0};
-
-    int* non_unique_array = new int[capacity]{0};
-    int nu{0};
-
-
-    bool first_zero{true};
-    for(int i=0; i<capacity; i++){
-        //special if 0 case
-        if(array[i] == 0 && first_zero){
-            first_zero = false;
-            u ++;
+std::size_t shift_duplicates( int array[], std::size_t capacity ){//[0,8,0,1,8,0] --> capacity-1 = 5
+    int nums_checked{0};
+    bool is_unique{true};
+    int unique_count{1};
+    while(nums_checked < capacity-1){
+        is_unique = true;
+        for(int i=0; i<unique_count; i++){
+            if(array[unique_count]==array[i]){
+                shift_back(array, capacity, unique_count);
+                is_unique = false;
+                break;
+            }
         }
-        else if(in_array(unique_array, array[i], capacity)||(array[i]==0 && !first_zero)){
-            non_unique_array[nu] = array[i];
-            nu++;
-        }else{
-            unique_array[u]= array[i];
-            u++;
+        if(is_unique){
+            unique_count++;
         }
-    }
-    for(int i=0;i<u;i++){
-        array[i] = unique_array[i];
-    }
-    for(int i=0; i<nu; i++){
-        array[u+i]=non_unique_array[i];
-    }
+        nums_checked ++;
 
-    delete unique_array;
-    unique_array = nullptr;
 
-    delete non_unique_array;
-    non_unique_array = nullptr;
-        return u;
-
+    }
+    return unique_count;
 }
+// If is_array is true, then you will loop through the array setting each entry to zero. The third argument
+// will contain the capacity of the array. You will then deallocate that memory.
+// 2. Otherwise, it is not an array, so it is just a pointer to one instance of type double. You will set that
+// entry to zero and the third argument will be ignored
+void deallocate( double *&ptr, bool is_array, std::size_t capacity = 0 ){
+if(is_array){
+    for(std::size_t i=0; i<capacity; i++){
+        ptr[i] = 0;
+    }
+    delete[] ptr;
+}else {
+    *ptr =0;
+    delete ptr;
+    }
+    ptr = nullptr;
+}
+
 int main(){
     int* array = new int[6]{0,8,0,1,8,0};
 
